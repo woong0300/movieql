@@ -1,17 +1,38 @@
-import fetch from "node-fetch";
-const API_URL = "https://yts.mx/api/v2/list_movies.json";
+//import fetch from "node-fetch"; fetch대신에 axios로 대체
+import axios from "axios";
 
-export const getMovies = (limit, rating) => {
-  let REQUEST_URL = API_URL;
+const LIST_MOVIES_URL = "https://yts.am/api/v2/list_movies.json?";
+const MOVIE_DETAILS_URL = "https://yts.am/api/v2/movie_details.json";
+
+//기존의 영화 리스트를 axios로 구현
+export const getMovies = async (limit, rating) => {
+  let REQUEST_URL = LIST_MOVIES_URL;
   if (limit > 0) {
     REQUEST_URL += `&limit=${limit}`;
   }
   if (rating > 0) {
     REQUEST_URL += `?minimum_rating=${rating}`;
   }
-  return fetch(REQUEST_URL)
-    .then(res => res.json())
-    .then(json => json.data.movies);
+  const {
+    data: {
+      data: { movies }
+    }
+  } = await axios(REQUEST_URL);
+  return movies;
+};
+
+//영화 1개를 골라 자세한 정보를 가져오는 것을 구현
+export const getMovie = async id => {
+  const {
+    data: {
+      data: { movie }
+    }
+  } = await axios(MOVIE_DETAILS_URL, {
+    params: {
+      movie_id: id
+    }
+  });
+  return movie;
 };
 
 // 직접 DB를 만들어서 해보는 예시
